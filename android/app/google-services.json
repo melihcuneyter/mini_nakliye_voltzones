@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "676516384031",
+    "project_id": "mini-nakliye-voltzones",
+    "storage_bucket": "mini-nakliye-voltzones.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:676516384031:android:90c8de8a0e21e9a918342a",
+        "android_client_info": {
+          "package_name": "com.voltzones.mini_nakliye_voltzones"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCw2IFOSaE2Z3nJIIpjrxoK4kJVKkMmGtE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
