@@ -27,6 +27,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
+  double _calculatePrice(String vehicleType, String weight) {
+    final weightValue = double.tryParse(weight) ?? 0;
+
+    final pricePerKg = {
+      'Minivan': 15.0,
+      'Panelvan': 12.0,
+      'Van': 10.0,
+      'Truck': 8.0,
+    };
+
+    return (pricePerKg[vehicleType] ?? 0) * weightValue;
+  }
+
   void _createOrder() async {
     if (_formKey.currentState!.validate()) {
       final order = models.Order(
@@ -166,6 +179,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     return t.pleaseEnterValidNumber;
                   }
                   return null;
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              // Tahmini Fiyat Gösterimi
+              ValueListenableBuilder(
+                valueListenable: _yukAgirligiController,
+                builder: (context, value, child) {
+                  final price = _calculatePrice(_selectedAracTipi, value.text);
+
+                  if (value.text.isNotEmpty &&
+                      double.tryParse(value.text) != null) {
+                    return Card(
+                      color: Colors.blue.shade50,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.payments,
+                                  color: Colors.blue.shade700,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  t.estimatedPrice,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.blue.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              '₺${price.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
                 },
               ),
               const SizedBox(height: 24),
