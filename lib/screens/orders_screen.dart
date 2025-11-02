@@ -1,32 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/order_provider.dart';
 
 class OrdersScreen extends ConsumerWidget {
   const OrdersScreen({super.key});
 
+  String _getTranslatedVehicle(BuildContext context, String key) {
+    final t = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'Minivan':
+        return t.minivan;
+      case 'Panelvan':
+        return t.panelvan;
+      case 'Van':
+        return t.van;
+      case 'Truck':
+        return t.truck;
+      default:
+        return key;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ordersAsync = ref.watch(ordersStreamProvider);
+    final t = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Siparişlerim'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(t.orders), centerTitle: true),
       body: ordersAsync.when(
         data: (orders) {
           if (orders.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.inbox, size: 100, color: Colors.grey),
-                  SizedBox(height: 16),
+                  const Icon(Icons.inbox, size: 100, color: Colors.grey),
+                  const SizedBox(height: 16),
                   Text(
-                    'Henüz sipariş yok',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    t.noOrders,
+                    style: const TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                 ],
               ),
@@ -38,7 +53,9 @@ class OrdersScreen extends ConsumerWidget {
             itemCount: orders.length,
             itemBuilder: (context, index) {
               final order = orders[index];
-              final formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(order.tarih);
+              final formattedDate = DateFormat(
+                'dd/MM/yyyy HH:mm',
+              ).format(order.tarih);
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -65,7 +82,9 @@ class OrdersScreen extends ConsumerWidget {
                         children: [
                           const Icon(Icons.local_shipping, size: 16),
                           const SizedBox(width: 4),
-                          Text('Araç: ${order.aracTipi}'),
+                          Text(
+                            '${t.vehicle}: ${_getTranslatedVehicle(context, order.aracTipi)}',
+                          ),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -73,7 +92,7 @@ class OrdersScreen extends ConsumerWidget {
                         children: [
                           const Icon(Icons.scale, size: 16),
                           const SizedBox(width: 4),
-                          Text('Yük: ${order.yukAgirligi} kg'),
+                          Text('${t.load}: ${order.yukAgirligi} ${t.kg}'),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -89,20 +108,22 @@ class OrdersScreen extends ConsumerWidget {
                   trailing: IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () async {
-                      // Silme onayı dialogu
                       final confirm = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Sipariş Sil'),
-                          content: const Text('Bu siparişi silmek istediğinize emin misiniz?'),
+                          title: Text(t.deleteOrder),
+                          content: Text(t.deleteConfirm),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
-                              child: const Text('İptal'),
+                              child: Text(t.cancel),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Sil', style: TextStyle(color: Colors.red)),
+                              child: Text(
+                                t.delete,
+                                style: const TextStyle(color: Colors.red),
+                              ),
                             ),
                           ],
                         ),
@@ -110,17 +131,19 @@ class OrdersScreen extends ConsumerWidget {
 
                       if (confirm == true) {
                         try {
-                          await ref.read(orderActionsProvider).deleteOrder(order.id);
+                          await ref
+                              .read(orderActionsProvider)
+                              .deleteOrder(order.id);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Sipariş silindi')),
+                              SnackBar(content: Text(t.orderDeleted)),
                             );
                           }
                         } catch (e) {
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Hata: $e')),
-                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text('Hata: $e')));
                           }
                         }
                       }
@@ -132,9 +155,7 @@ class OrdersScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text('Hata: $error'),
-        ),
+        error: (error, stack) => Center(child: Text('Hata: $error')),
       ),
     );
   }

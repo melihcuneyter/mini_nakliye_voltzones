@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/app_localizations.dart';
 import '../models/order_model.dart' as models;
 import '../providers/order_provider.dart';
 
@@ -15,9 +16,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final _baslangicController = TextEditingController();
   final _bitisController = TextEditingController();
   final _yukAgirligiController = TextEditingController();
-  
+
   String _selectedAracTipi = 'Minivan';
-  final List<String> _aracTipleri = ['Minivan', 'Panelvan', 'Kamyonet', 'TIR'];
 
   @override
   void dispose() {
@@ -40,13 +40,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
       try {
         await ref.read(orderActionsProvider).addOrder(order);
-        
+
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Sipariş başarıyla oluşturuldu!')),
-          );
-          
-          // Formu temizle
+          final t = AppLocalizations.of(context)!;
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(t.orderCreated)));
+
           _baslangicController.clear();
           _bitisController.clear();
           _yukAgirligiController.clear();
@@ -56,21 +56,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Hata: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Hata: $e')));
         }
       }
     }
   }
 
+  String _getTranslatedVehicle(BuildContext context, String key) {
+    final t = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'Minivan':
+        return t.minivan;
+      case 'Panelvan':
+        return t.panelvan;
+      case 'Van':
+        return t.van;
+      case 'Truck':
+        return t.truck;
+      default:
+        return key;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final aracTipleri = ['Minivan', 'Panelvan', 'Van', 'Truck'];
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sipariş Oluştur'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(t.createOrder), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -78,54 +94,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Başlangıç Konumu
               TextFormField(
                 controller: _baslangicController,
-                decoration: const InputDecoration(
-                  labelText: 'Başlangıç Konumu',
-                  hintText: 'Örn: İstanbul, Kadıköy',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.location_on),
+                decoration: InputDecoration(
+                  labelText: t.startLocation,
+                  hintText: t.startLocationHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.location_on),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Lütfen başlangıç konumu girin';
+                    return t.pleaseEnterStartLocation;
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
 
-              // Bitiş Konumu
               TextFormField(
                 controller: _bitisController,
-                decoration: const InputDecoration(
-                  labelText: 'Bitiş Konumu',
-                  hintText: 'Örn: Ankara, Çankaya',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.location_on),
+                decoration: InputDecoration(
+                  labelText: t.endLocation,
+                  hintText: t.endLocationHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.location_on),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Lütfen bitiş konumu girin';
+                    return t.pleaseEnterEndLocation;
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
 
-              // Araç Tipi Dropdown
               DropdownButtonFormField<String>(
-                initialValue: _selectedAracTipi,
-                decoration: const InputDecoration(
-                  labelText: 'Araç Tipi',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.local_shipping),
+                value: _selectedAracTipi,
+                decoration: InputDecoration(
+                  labelText: t.vehicleType,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.local_shipping),
                 ),
-                items: _aracTipleri.map((arac) {
+                items: aracTipleri.map((arac) {
                   return DropdownMenuItem(
                     value: arac,
-                    child: Text(arac),
+                    child: Text(_getTranslatedVehicle(context, arac)),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -136,37 +149,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Yük Ağırlığı
               TextFormField(
                 controller: _yukAgirligiController,
-                decoration: const InputDecoration(
-                  labelText: 'Yük Ağırlığı (kg)',
-                  hintText: 'Örn: 500',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.scale),
+                decoration: InputDecoration(
+                  labelText: t.loadWeight,
+                  hintText: t.loadWeightHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.scale),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Lütfen yük ağırlığı girin';
+                    return t.pleaseEnterLoadWeight;
                   }
                   if (double.tryParse(value) == null) {
-                    return 'Lütfen geçerli bir sayı girin';
+                    return t.pleaseEnterValidNumber;
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 24),
 
-              // Sipariş Oluştur Butonu
               ElevatedButton(
                 onPressed: _createOrder,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text(
-                  'Sipariş Oluştur',
-                  style: TextStyle(fontSize: 16),
+                child: Text(
+                  t.createOrder,
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
             ],
