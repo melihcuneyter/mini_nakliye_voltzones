@@ -73,27 +73,85 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.add_box),
-            label: t.createOrder,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.list),
-            label: t.orders,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.settings),
-            label: t.settings,
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          selectedItemColor: Colors.blue.shade700,
+          unselectedItemColor: Colors.grey.shade400,
+          selectedFontSize: 12,
+          unselectedFontSize: 12,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+          items: [
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 0
+                      ? Colors.blue.shade50
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _selectedIndex == 0 ? Icons.add_box : Icons.add_box_outlined,
+                  size: 26,
+                ),
+              ),
+              label: t.createOrder,
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 1
+                      ? Colors.blue.shade50
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _selectedIndex == 1
+                      ? Icons.receipt_long
+                      : Icons.receipt_long_outlined,
+                  size: 26,
+                ),
+              ),
+              label: t.orders,
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 2
+                      ? Colors.blue.shade50
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _selectedIndex == 2
+                      ? Icons.settings
+                      : Icons.settings_outlined,
+                  size: 26,
+                ),
+              ),
+              label: t.settings,
+            ),
+          ],
+        ),
       ),
     );
   }
